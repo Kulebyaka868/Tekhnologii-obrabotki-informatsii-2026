@@ -1,0 +1,35 @@
+﻿{% extends "app/layout.html" %}
+{% load static %}
+{% block content %}
+
+<div style="margin: 20px 0">
+    {% if user.is_staff %}
+    <div style="display: flex; width: 100%; justify-content: space-between; align-items: center; font-size: 28px; color: #75b061; font-weight: 600; margin-bottom: 30px;">
+        <div>
+            Создание новости
+        </div>
+    </div>
+    <div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" style="padding: 8px 16px; background-color: #75b061; color: white; border: none; border-radius: 5px; cursor: pointer;">Добавить новость</button>
+        </form>
+    </div>
+    {% else %}
+
+    <div style="display: flex; width: 100%; justify-content: space-between; align-items: center; font-size: 28px; color: #75b061; font-weight: 600; margin-bottom: 30px;">
+        <div>
+            Только администратор сайта может добавлять новости!
+        </div>
+    </div>
+    <div style="display: flex; gap: 20px; margin-top: 15px;">
+        <button class="button-usual"><a style="color: #fff; text-decoration: none;" href="{% url 'home' %}">На главную</a></button>
+        <button class="button-usual"><a style="color: #fff; text-decoration: none;" href="{% url 'catalog' %}">В каталог</a></button>
+    </div>
+    {% endif %}
+
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} | Бургеритта</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app/content/bootstrap.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'app/content/site.css' %}" />
+    <link rel="icon" type="image/png" href="{% static 'app/content/logo.png' %}">
+    <script src="{% static 'app/scripts/modernizr-2.6.2.js' %}"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div class="main_layout_container">
+        <div class="main_layout_header_box">
+            <div class="inner_container">
+                <header class="header" style="background-color: white; font-size: 17px !important; border-bottom: 2px solid #e0e0e0;">
+                    <div class="image_main_logo">
+                        <a href="{% url 'home' %}">
+                            <img class="image image_main_logo" src="{% static 'app/content/logo.png' %}" alt="logo" />
+                        </a>
+                    </div>
+                    <nav class="nav">
+                        <ul>
+                            <li><a href="{% url 'catalog' %}">Каталог</a></li>
+                            <li><a href="{% url 'contact' %}">Контакты</a></li>
+                            <li><a href="{% url 'partners' %}">Наши партнеры</a></li>
+                            <li><a href="{% url 'anketa' %}">Анкетирование</a></li>
+                            <li><a href="{% url 'news' %}">Новости</a></li>
+                        </ul>
+                    </nav>
+                    <div style="display: flex; flex-direction: column; font-size: 17px !important;">
+                        <div style="margin-bottom: 10px;">
+                            {% if user.is_authenticated %}
+                            <a href="{% url 'cabinet' %}" style="text-decoration: none; color: #333;">Аккаунт: {{ user.username }}</a>
+                            {% if avatar and avatar.avatar %}
+                            <img src="{{ avatar.avatar.url }}" alt="Avatar" style="width: 30px; height: 30px; border-radius: 50%; margin-left: 10px;">
+                            {% endif %}
+                            {% else %}
+                            <a href="{% url 'login' %}" style="text-decoration: none; color: #333;">Вход</a>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {% if user.is_authenticated %}
+                            <form action="{% url 'logout' %}" method="post" style="margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit" style="background: none; border: none; color: #333; text-decoration: none; padding: 0; cursor: pointer;">Выход</button>
+                            </form>
+                            {% else %}
+                            <a href="{% url 'registration' %}" style="text-decoration: none; color: #333;">Регистрация</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <a href="{% url 'cart' %}">
+                        <div style="position: relative; display: inline-block;">
+                            <button class="add-to-cart-button">
+                                <img src="{% static 'app/content/cart.svg' %}" alt="Корзина" style="width: 30px; object-fit: cover; border-radius: 20px;" />
+                            </button>
+                            <div class="cart_count" style="display: none; position: absolute; top: -10px; right: -10px; background-color: red; color: white; width: 20px; height: 20px; border-radius: 50%; justify-content: center; align-items: center; font-size: 13px;">1</div>
+                        </div>
+                    </a>
+                </header>
+            </div>
+        </div>
+        <div class="main_layout_children_box">
+            <div class="main_page_container">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+        <div class="main_layout_footer_box">
+            <div class="inner_container">
+                <footer class="footer" style="font-size: 17px !important;">
+                    <div class="footer__content">
+                        <div class="footer__links">
+                            <ul>
+                                <li><a href="{% url 'catalog' %}">Каталог</a></li>
+                                <li><a href="{% url 'contact' %}">Контакты</a></li>
+                                <li><a href="{% url 'partners' %}">Наши партнеры</a></li>
+                                <li><a href="{% url 'anketa' %}">Анкетирование</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="footer__copyright">
+                        &copy; 2026 "БУРГЕРИТТА"
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function updateCartIcon() {
+            var cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+            var itemCount = cartItems.length;
+
+            var cartIcon = document.querySelector('.cart_count');
+            if (itemCount > 0) {
+                cartIcon.style.display = 'flex';
+                cartIcon.innerText = itemCount;
+            }
+        }
+
+        window.onload = function () {
+            updateCartIcon();
+        };
+    </script>
+
+
+    <script src="{% static 'app/scripts/jquery-1.10.2.js' %}"></script>
+    <script src="{% static 'app/scripts/bootstrap.js' %}"></script>
+    <script src="{% static 'app/scripts/respond.js' %}"></script>
+    {% block scripts %}{% endblock %}
+
+</body>
+</html>

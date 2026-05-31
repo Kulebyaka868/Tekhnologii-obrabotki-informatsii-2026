@@ -1,0 +1,202 @@
+﻿{% extends "app/layout.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f9 ; /* Цвет фона, напоминающий цвет крема или ванили */
+        color: #4b2e83; /* Темно-фиолетовый цвет для текста */
+        margin: 0;
+        padding: 0;
+    }
+    .main_page_vertical_container {
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+    }
+    .header_poster {
+        border-radius: 0;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
+    }
+    .header_poster_text {
+        font-size: 42px;
+        font-weight: bold;
+        text-align: center;
+        background: rgba(75, 46, 131, 0.7); /* Полупрозрачный темно-фиолетовый фон */
+        padding: 20px;
+    }
+    .product-card {
+        background: #fff0e6; /* Светло-оранжевый цвет, напоминающий цвет апельсина */
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+    }
+    .product-card:hover {
+        transform: translateY(-10px);
+    }
+    .product-image img {
+        border-radius: 10px 10px 0 0;
+    }
+</style>
+
+<div class="main_page_vertical_container">
+    <div class="header_poster" style="position: relative; border-radius: 20px; overflow: hidden; width: 100%; margin-top: 20px; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(to right, rgba(0,0,0,0), transparent);">
+        <div class="poster-text" style="color: white; max-width: 70%; text-align: center; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 20px;">
+            <div style="font-size: 36px; font-weight: 600; margin-bottom: 20px;">
+                Добро пожаловать в "Бургеритту"!
+            </div>
+            <p style="font-size: 18px; line-height: 1.6; margin-bottom: 15px;">
+                В "Бургеритте" мы создаем больше, чем просто еду – мы готовим настоящие кулинарные впечатления! Каждый наш бургер – это история вкуса, сочетание свежайших ингредиентов и страсти к приготовлению. Мы не просто кормим – мы дарим удовольствие и яркие эмоции каждому гостю!
+            </p>
+        </div>
+        <video autoplay loop muted style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; border-radius: 20px;">
+            <source src="/media/video1.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+</div>
+<div style="margin: 40px 0">
+    <div style="font-size: 24px; color: #75b061; font-weight: 600; margin-bottom: 30px;">
+        Популярные товары
+    </div>
+    <div class="product-container">
+        {% for product in products %}
+        <div class="product-card">
+            <div class="product-details">
+                <a style="text-decoration: none;" href="/products/{{ product.id }}/">
+                    <div class="product-image" style="min-height: 200px; height: 200px; overflow: hidden;">
+                        {% if product.images %}
+                        {% if product.images|length > 1 %}
+                        <div id="carouselExample{{ product.id }}" class="carousel slide" data-ride="carousel" style="height: 200px;">
+                            <div class="carousel-inner" style="height: 200px;">
+                                {% for image in product.images %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <img src="{{ image.path.url }}" class="d-block w-100" alt="Изображение товара" style="height: 200px; object-fit: cover; border-radius: 20px;">
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <img src="{{ product.images.0.path.url }}" alt="Изображение товара" style="width: 100%; height: 200px; object-fit: cover; border-radius: 20px;">
+                        {% endif %}
+                        {% else %}
+                        <img src="{% static 'app/content/no-image.jpg' %}" alt="Нет изображения" style="width: 100%; height: 200px; object-fit: cover; border-radius: 20px;">
+                        {% endif %}
+                    </div>
+                    <div class="product-info">
+                        <h3 style="color: #75b061; margin: 10px 0;">{{ product.name }}</h3>
+                        <p style="color: #6e6e6e;">{{ product.description|truncatechars:100 }}</p>
+                        <div class="product-price" style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                            <span style="font-weight: bold; color: #75b061;">{{ product.price }} ₽</span>
+                            <button onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }}); event.preventDefault();" style="background-color: #75b061; color: white; border: none; border-radius: 5px; padding: 5px 10px;">
+                                В корзину
+                            </button>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="video-cont-parent" style="position: relative; border-radius: 20px; overflow: hidden;">
+    <div class="video-cont">
+        <div style="width: 50%; display: flex; gap: 30px;">
+            <div class="video-text">Наш фирменный бургер вас точно удивит</div>
+            <div class="video-image-info">
+                <img src="../../static/app/content/logo.png" alt="Бургеритта">
+            </div>
+        </div>
+    </div>
+    <video autoplay loop muted style="width: 100%;">
+        <source src="/media/video.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</div>
+<script>
+    function validateInput(maxValue, productId) {
+        const input = document.getElementById(`count_input_${productId}`);
+        let value = input.value;
+
+        if (!Number.isInteger(+value) || Number(value) < 1 || Number(value) > maxValue) {
+            input.value = 1;
+        }
+    }
+
+    function showChildren(category) {
+        var subcategories = category.querySelector('.subcategories');
+        subcategories.style.display = 'grid';
+        category.style.backgroundColor = '#edeef4';
+
+        var firstChild = category.querySelector('.category-name');
+        if (firstChild) {
+            firstChild.style.color = '#75b061';
+        }
+    }
+
+    function hideChildren(category) {
+        var subcategories = category.querySelector('.subcategories');
+        subcategories.style.display = 'none';
+        category.style.backgroundColor = 'transparent';
+
+        var firstChild = category.querySelector('.category-name');
+        if (firstChild) {
+            firstChild.style.color = 'white';
+        }
+    }
+
+    function addToCart(id, name, price) {
+        var countInput = document.getElementById('count_input_' + id);
+        var quantity = countInput.value;
+
+        var cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        cartItems.push({ id: id, name: name, quantity: quantity, price: price });
+
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+
+        var itemCount = cartItems.length;
+
+        var cartIcon = document.querySelector('.cart_count');
+        if (itemCount > 0) {
+            cartIcon.style.display = 'flex';
+            cartIcon.innerText = itemCount;
+        }
+
+        cartItems.forEach(function (item) {
+            var productId = item.id;
+
+            var addToCartForm = document.querySelector('.add-to-cart-form-' + productId);
+            var inCartMessage = document.querySelector('.in_cart-' + productId);
+            if (addToCartForm && inCartMessage) {
+                addToCartForm.style.display = 'none';
+                inCartMessage.style.display = 'block';
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        var cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        var itemCount = cartItems.length;
+
+        var cartIcon = document.querySelector('.cart_count');
+        if (itemCount > 0) {
+            cartIcon.style.display = 'flex';
+            cartIcon.innerText = itemCount;
+        }
+
+        cartItems.forEach(function (item) {
+            var productId = item.id;
+
+            var addToCartForm = document.querySelector('.add-to-cart-form-' + productId);
+            var inCartMessage = document.querySelector('.in_cart-' + productId);
+            if (addToCartForm && inCartMessage) {
+                addToCartForm.style.display = 'none';
+                inCartMessage.style.display = 'block';
+            }
+        });
+    });
+</script>
+
+{% endblock %}

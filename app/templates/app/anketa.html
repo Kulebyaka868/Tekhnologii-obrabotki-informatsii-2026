@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'app/content/anketa.css' %}" />
+    <link rel="icon" type="image/png" href="{% static 'app/content/logo.png' %}">
+    <meta charset="UTF-8">
+    <title>Анкета</title>
+</head>
+<body>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+        <h1>Анкета пользователя</h1>
+        <div>
+            {% if data %}
+            <div class="submitted-data">
+                <p><strong>Имя:</strong> {{ data.name }}</p>
+                <p><strong>Город:</strong> {{ data.city }}</p>
+                <p><strong>Специальность:</strong> {{ data.job }}</p>
+                <p><strong>Пол:</strong> {{ data.gender }}</p>
+                <p><strong>Частота использования интернета:</strong> {{ data.internet }}</p>
+                <p><strong>E-mail:</strong> {{ data.email }}</p>
+                <p><strong>Получать новости сайта:</strong> {{ data.notice }}</p>
+                <p><strong>Короткое резюме:</strong> {{ data.message }}</p>
+            </div>
+            {% else %}
+            <form method="post">
+                {% csrf_token %}
+                <div>
+                    <label for="id_name">Имя:</label>
+                    {{ form.name }}
+                </div>
+                <div>
+                    <label for="id_city">Город:</label>
+                    {{ form.city }}
+                </div>
+                <div>
+                    <label for="id_job">Специальность:</label>
+                    {{ form.job }}
+                </div>
+                <div>
+                    <label for="id_gender">Пол:</label>
+                    {{ form.gender }}
+                </div>
+                <div>
+                    <label for="id_internet">Частота использования интернета:</label>
+                    {{ form.internet }}
+                </div>
+                <div>
+                    <label for="id_email">E-mail:</label>
+                    {{ form.email }}
+                </div>
+                <div>
+                    <label for="id_notice">Получать новости сайта:</label>
+                    {{ form.notice }}
+                </div>
+                <div>
+                    <label for="id_message">Короткое резюме:</label>
+                    {{ form.message }}
+                </div>
+                <button type="submit">Отправить</button>
+            </form>
+            {% endif %}
+        </div>
+        <button><a style="color: #fff; text-decoration: none;" href="{% url 'home' %}">На главную</a></button>
+    </div>
+</body>
+</html>

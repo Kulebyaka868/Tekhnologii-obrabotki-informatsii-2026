@@ -1,0 +1,256 @@
+{% extends "app/layout.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+    body {
+        background-color: #f4f4f9;
+    }
+    .cabinet-container {
+        display: flex;
+        gap: 30px;
+        margin-top: 20px;
+    }
+    .left-column {
+        flex: 0 0 350px;
+    }
+    .right-column {
+        flex: 1;
+    }
+    .orders-container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+
+<div style="margin: 20px 0">
+    <div style="font-size: 28px; color: #75b061; font-weight: 600; margin-bottom: 30px;">
+        Личный кабинет
+    </div>
+</div>
+
+<div class="cabinet-container">
+    <div class="left-column">
+        <div style="margin-bottom: 30px;">
+            <div style="font-size: 20px; color: #75b061; font-weight: 600; margin-bottom: 10px;">
+                Роли пользователя
+            </div>
+            <div style="font-size: 16px;">
+                {% if user_groups %}
+                    {% for group in user_groups %}
+                        <span style="background-color: #75b061; color: white; padding: 5px 10px; border-radius: 5px; margin-right: 5px;">{{ group.name }}</span>
+                    {% endfor %}
+                {% else %}
+                    <span style="color: #666;">Нет назначенных ролей</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <div style="font-size: 20px; color: #75b061; font-weight: 600; margin-bottom: 20px;">
+                Личная информация
+            </div>
+            <form method="post" enctype="multipart/form-data" class="profile-form">
+                {% csrf_token %}
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; margin-bottom: 10px;">Аватар</div>
+                    {% if avatar %}
+                        <div class="avatar-container" style="margin-bottom: 10px;">
+                            <img src="{{ avatar.avatar.url }}" alt="Avatar" class="avatar-image">
+                        </div>
+                    {% else %}
+                        <div class="avatar-container" style="margin-bottom: 10px;">
+                            <div class="avatar-placeholder">Нет аватарки</div>
+                        </div>
+                    {% endif %}
+                    {{ profile_form.avatar }}
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; margin-bottom: 10px;">Номер телефона</div>
+                    {{ profile_form.phone }}
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; margin-bottom: 10px;">{{ profile_form.address.label }}</div>
+                    {{ profile_form.address }}
+                </div>
+                
+                <input type="hidden" name="profile_update" value="1">
+                <button type="submit" style="background-color: #75b061; color: white; border: none; border-radius: 5px; padding: 10px 20px; cursor: pointer;">
+                    Сохранить изменения
+                </button>
+            </form>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <div style="font-size: 20px; color: #75b061; font-weight: 600; margin-bottom: 30px;">
+                Изменить пароль
+            </div>
+            <form method="post" style="max-width: 500px;">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="hidden" name="password_change" value="1">
+                <button type="submit" style="margin-top: 10px; padding: 10px; border: none; border-radius: 5px; background-color: #75b061; color: #fff; font-size: 16px; cursor: pointer;">Изменить пароль</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="right-column">
+        <div class="orders-container">
+            <div style="font-size: 20px; color: #75b061; font-weight: 600; margin-bottom: 20px;">
+                Мои заказы
+            </div>
+            {% if active_orders %}
+                {% for order in active_orders %}
+                    <div style="border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div>
+                                <div style="font-weight: 600;">Заказ #{{ order.id }}</div>
+                                <div style="color: #666; font-size: 14px;">{{ order.created_at }}</div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div class="order-status" style="padding: 5px 10px; border-radius: 5px; font-size: 14px; 
+                                    {% if order.status == 'pending' %}
+                                        background-color: #ffd700; color: #000;
+                                    {% elif order.status == 'ready' %}
+                                        background-color: #90EE90; color: #000;
+                                    {% elif order.status == 'completed' %}
+                                        background-color: #75b061; color: #fff;
+                                    {% else %}
+                                        background-color: #ff6b6b; color: #fff;
+                                    {% endif %}">
+                                    {% if order.status == 'pending' %}
+                                        В обработке
+                                    {% elif order.status == 'ready' %}
+                                        Готов
+                                    {% elif order.status == 'completed' %}
+                                        Выполнен
+                                    {% else %}
+                                        Отменён
+                                    {% endif %}
+                                </div>
+                                <div style="font-weight: 600; color: #75b061;">{{ order.total_cost }} ₽</div>
+                            </div>
+                        </div>
+                        <div>
+                            <button onclick="toggleOrderItems('{{ order.id }}')" style="background: none; border: none; color: #75b061; cursor: pointer; padding: 0;">
+                                Показать товары
+                            </button>
+                            <div id="orderItems{{ order.id }}" style="display: none; margin-top: 10px;">
+                                {% for item in order.items.all %}
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span>{{ item.product.name }} x {{ item.count }}</span>
+                                        <span>{{ item.price }} ₽</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <button onclick="deleteOrder('{{ order.id }}')" style="background-color: #ff4444; color: white; border: none; border-radius: 5px; padding: 5px 10px; margin-top: 10px; cursor: pointer;">
+                            Удалить заказ
+                        </button>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; color: #666; padding: 20px;">
+                    У вас пока нет заказов
+                </div>
+            {% endif %}
+        </div>
+
+        {% if reviews %}
+        <div class="orders-container" style="margin-top: 20px;">
+            <div style="font-size: 20px; color: #75b061; font-weight: 600; margin-bottom: 20px;">
+                Мои отзывы
+            </div>
+            {% for review in reviews %}
+                <div style="border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <div>
+                            <div style="font-weight: 600;">{{ review.product.name }}</div>
+                            <div style="color: #666; font-size: 14px;">{{ review.created_at }}</div>
+                        </div>
+                        <div>
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.grade %}
+                                    <img src="{% static 'app/content/star.svg' %}" alt="star" style="width: 20px; height: 20px;">
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div style="margin: 10px 0;">{{ review.text }}</div>
+                    <button onclick="deleteReview('{{ review.id }}')" style="background-color: #ff4444; color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer;">
+                        Удалить отзыв
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function toggleOrderItems(orderId) {
+        var itemsDiv = document.getElementById('orderItems' + orderId);
+        var button = document.querySelector('.show-items-btn-' + orderId);
+        if (itemsDiv.style.display === 'none') {
+            itemsDiv.style.display = 'block';
+            button.innerText = 'Скрыть товары';
+        } else {
+            itemsDiv.style.display = 'none';
+            button.innerText = 'Показать товары';
+        }
+    }
+
+    function deleteOrder(orderId) {
+        if (confirm("Вы уверены, что хотите удалить этот заказ?")) {
+            fetch(`/delete_order/${orderId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ошибка удаления заказа');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(data.message);
+                    location.reload();
+                })
+                .catch(error => {
+                    alert(error.message);
+                });
+        }
+    }
+
+    function deleteReview(reviewId) {
+        if (confirm("Вы уверены, что хотите удалить этот отзыв?")) {
+            fetch(`/delete_review/${reviewId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ошибка удаления отзыва');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(data.message);
+                    location.reload();
+                })
+                .catch(error => {
+                    alert(error.message);
+                });
+        }
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,29 @@
+﻿{% extends "app/layout.html" %}
+
+{% block content %}
+
+<style>
+    body {
+        background-color: #f4f4f9;
+    }
+</style>
+
+<div style="margin: 20px 0">
+    <div style="font-size: 28px; color: #75b061; font-weight: 600; margin-bottom: 30px;">
+        Партнеры
+    </div>
+    <div style="font-size: 16px;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+            <img src="../../static/app/content/HLEBOVO.png" alt="IKEA" style="margin-right: 10px; width: 70px; height: 70px; border-radius: 20px; object-fit: cover;">
+            <a href="https://hlebpskov.ru/" >Псковский хлебокомбинат</a>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+            <img src="../../static/app/content/MYASOKOMBINAT.png" alt="Леруа Мерлен" style="margin-right: 10px; width: 70px; height: 70px; border-radius: 20px; object-fit: cover;">
+            <a href="https://www.vlmk.spb.ru/">Великолукский Мясокомбинат</a>
+        </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
